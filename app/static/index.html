@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CV Search App</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #dbeafe, #f5d0fe, #dcfce7);
+            margin: 0;
+            color: #1f2937;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 60px auto;
+            padding: 30px;
+        }
+
+        .hero {
+            text-align: center;
+            margin-bottom: 35px;
+        }
+
+        .hero h1 {
+            font-size: 46px;
+            margin-bottom: 10px;
+            color: #1e3a8a;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.92);
+            border-radius: 20px;
+            padding: 28px;
+            margin-bottom: 24px;
+            box-shadow: 0 12px 35px rgba(30, 58, 138, 0.15);
+        }
+
+        h2 {
+            margin-top: 0;
+            color: #7c3aed;
+        }
+
+        input[type="file"],
+        input[type="text"] {
+            width: 100%;
+            padding: 14px;
+            border-radius: 12px;
+            border: 2px solid #bfdbfe;
+            margin-top: 10px;
+            margin-bottom: 15px;
+            font-size: 15px;
+            background: #f8fafc;
+            box-sizing: border-box;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #8b5cf6;
+        }
+
+        button {
+            background: linear-gradient(135deg, #2563eb, #7c3aed);
+            color: white;
+            border: none;
+            padding: 13px 24px;
+            border-radius: 12px;
+            font-size: 15px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background: linear-gradient(135deg, #1d4ed8, #6d28d9);
+        }
+
+        #uploadStatus {
+            color: #16a34a;
+            font-weight: bold;
+        }
+
+        #answer {
+            background: #f8fafc;
+            border-left: 5px solid #7c3aed;
+            padding: 18px;
+            border-radius: 12px;
+            min-height: 80px;
+            white-space: pre-wrap;
+            line-height: 1.5;
+        }
+
+        .examples {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .example {
+            background: linear-gradient(135deg, #dbeafe, #ede9fe);
+            color: #1e40af;
+            padding: 9px 14px;
+            border-radius: 999px;
+            font-size: 14px;
+            cursor: pointer;
+            border: 1px solid #c4b5fd;
+        }
+
+        .example:hover {
+            background: linear-gradient(135deg, #bfdbfe, #ddd6fe);
+        }
+
+        .signature {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            color: #475569;
+            font-size: 14px;
+            line-height: 1.8;
+        }
+
+        .signature strong {
+            color: #7c3aed;
+        }
+
+        .signature div:first-child {
+            font-weight: 700;
+            color: #1e3a8a;
+        }
+    
+.privacy-note {
+    background: #fff7d6;
+    border-left: 5px solid #f0b429;
+    padding: 12px 14px;
+    margin: 14px 0 18px 0;
+    border-radius: 10px;
+    color: #3b2f00;
+    font-size: 14px;
+    line-height: 1.5;
+}
+</style>
+
+</head>
+
+<body>
+<div class="container">
+
+    <div class="hero">
+        <h1>CV Search App</h1>
+    </div>
+
+    <div class="card">
+        <h2>1. Upload CV</h2>
+<div class="privacy-note">
+    <strong>Privacy note:</strong>
+    Please upload only test/sample CVs. Uploaded PDFs are processed temporarily and deleted after indexing. This app does not use external AI APIs or API keys.
+</div>
+
+        <input type="file" id="cvFile" accept=".pdf">
+        <button onclick="uploadCV()">Upload CV</button>
+        <p id="uploadStatus"></p>
+    </div>
+
+    <div class="card">
+        <h2>2. Ask a Question</h2>
+
+        <div class="examples">
+            <span class="example" onclick="setQuestion('What work experience does this candidate have?')">Work experience</span>
+            <span class="example" onclick="setQuestion('What education does this candidate have?')">Education</span>
+            <span class="example" onclick="setQuestion('What projects are mentioned in this CV?')">Projects</span>
+            <span class="example" onclick="setQuestion('What tools and technologies does this candidate know?')">Tools</span>
+        </div>
+
+        <input
+            type="text"
+            id="question"
+            placeholder="Ask something about the uploaded CV..."
+        >
+
+        <button onclick="askQuestion()">Ask</button>
+    </div>
+
+    <div class="card">
+        <h2>Answer</h2>
+        <div id="answer">Upload a CV and ask a question to see the answer here.</div>
+    </div>
+
+    <div class="signature">
+        <div><strong>CV Search App</strong> v1.0</div>
+        <div></div>
+        <div></div>
+    </div>
+
+</div>
+
+<script>
+    function setQuestion(text) {
+        document.getElementById("question").value = text;
+    }
+
+    async function uploadCV() {
+        const fileInput = document.getElementById("cvFile");
+
+        if (!fileInput.files.length) {
+            document.getElementById("uploadStatus").innerText = "Please choose a PDF file first.";
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append("file", fileInput.files[0]);
+
+        document.getElementById("uploadStatus").innerText = "Uploading and indexing CV...";
+
+        const response = await fetch("/upload-cv", {
+            method: "POST",
+            body: formData
+        });
+
+        const result = await response.json();
+
+        document.getElementById("uploadStatus").innerText =
+            result.message + " Created chunks: " + result.chunks_created;
+    }
+
+    async function askQuestion() {
+        const question = document.getElementById("question").value;
+
+        if (!question.trim()) {
+            document.getElementById("answer").innerText = "Please enter a question first.";
+            return;
+        }
+
+        document.getElementById("answer").innerText = "Searching CV...";
+
+        const response = await fetch("/ask", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ question: question })
+        });
+
+        const result = await response.json();
+
+        document.getElementById("answer").innerText = result.answer;
+    }
+</script>
+
+</body>
+</html>

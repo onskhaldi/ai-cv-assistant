@@ -1,0 +1,26 @@
+# Python cache
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Virtual environments
+venv/
+.venv/
+
+# Secrets
+.env
+.env.*
+
+# Uploaded/private files
+uploads/
+*.pdf
+
+# OS files
+.DS_Store
+
+# Local model/cache files
+.cache/
+models/
+
+# Duplicate nested project folder
+ai-cv-assistant/
