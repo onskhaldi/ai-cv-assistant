@@ -38,8 +38,7 @@ Instead of sending CV content to an external language model API, the application
 * NumPy
 * Docker
 * HTML
-* CSS
-* JavaScript
+
 
 ## How It Works
 
